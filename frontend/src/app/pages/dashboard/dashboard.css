@@ -1,0 +1,257 @@
+.filtros-fecha {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+}
+
+.filtros-fecha mat-form-field {
+  width: 190px;
+}
+
+.rango-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--ts-muted);
+  font-size: 0.82rem;
+}
+
+.rango-info mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-line);
+  border-radius: 14px;
+}
+
+.mini mat-icon {
+  color: var(--ts-primary);
+  background: var(--ts-primary-soft);
+  border-radius: 10px;
+  padding: 6px;
+}
+
+.mini.entrada mat-icon {
+  color: var(--ts-success);
+  background: var(--ts-success-soft);
+}
+
+.mini.salida mat-icon {
+  color: var(--ts-danger);
+  background: var(--ts-danger-soft);
+}
+
+.mini div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini span {
+  font-size: 0.76rem;
+  color: var(--ts-muted);
+}
+
+.mini strong {
+  font-size: 1.1rem;
+}
+
+.leyenda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--ts-muted);
+  margin-bottom: 12px;
+}
+
+.punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.punto.entrada,
+.barra.entrada {
+  background: linear-gradient(180deg, #34d399, #10b981);
+}
+
+.punto.salida,
+.barra.salida {
+  background: linear-gradient(180deg, #fb7185, #e11d48);
+}
+
+.chart-box {
+  padding-top: 6px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 190px;
+  border-bottom: 1px solid var(--ts-line);
+  padding: 0 4px;
+  overflow-x: auto;
+}
+
+.columna {
+  flex: 1 0 22px;
+  max-width: 54px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+}
+
+.barra {
+  width: 11px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.25s ease;
+}
+
+.etiqueta {
+  font-size: 0.68rem;
+  color: var(--ts-muted);
+  padding-bottom: 4px;
+}
+
+.escalas {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--ts-muted);
+  padding-top: 8px;
+}
+
+.top-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-lista li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.top-lista li:last-child {
+  border-bottom: none;
+}
+
+.posicion {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #f1f4fa;
+  color: var(--ts-muted);
+  display: grid;
+  place-items: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.top-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.top-nombre {
+  font-weight: 500;
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-cifras {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.top-cifras .entrada {
+  color: var(--ts-success);
+}
+
+.top-cifras .salida {
+  color: var(--ts-danger);
+}
+
+.top-cifras small {
+  color: var(--ts-muted);
+  font-weight: 400;
+}
+
+.producto-celda {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.motivo {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+a {
+  color: var(--ts-primary);
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .filtros-fecha mat-form-field {
+    width: 100%;
+    flex: 1 1 140px;
+  }
+
+  .mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rango-info {
+    margin-left: 0;
+  }
+}

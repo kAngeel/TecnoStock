@@ -1,0 +1,64 @@
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    class="sidenav"
+    [mode]="modo()"
+    [opened]="abierto()"
+    (openedChange)="abierto.set($event)"
+  >
+    <div class="marca">
+      <div class="logo"><mat-icon>inventory_2</mat-icon></div>
+      <div>
+        <div class="nombre-marca">TecnoStock</div>
+        <div class="lema">Gestión de inventario</div>
+      </div>
+    </div>
+
+    <div class="seccion">OPERACIONES</div>
+    <mat-nav-list class="navegacion">
+      @for (item of menu; track item.ruta) {
+        <a mat-list-item [routerLink]="item.ruta" routerLinkActive="activo" (click)="alNavegar()">
+          <mat-icon matListItemIcon>{{ item.icono }}</mat-icon>
+          <span matListItemTitle>{{ item.etiqueta }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <div class="pie">
+      <div class="pie-linea"></div>
+      <span>TecnoStock S.A.C.</span>
+      <small>v1.0 · SQL Server + FastAPI</small>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="contenido-principal">
+    <mat-toolbar class="barra">
+      <button mat-icon-button (click)="alternar()" matTooltip="Mostrar u ocultar menú">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="titulo">{{ titulo() }}</span>
+      <span class="espacio"></span>
+
+      <button mat-button [matMenuTriggerFor]="menuUsuario" class="usuario">
+        <span class="avatar">{{ iniciales() }}</span>
+        <span class="nombre-usuario">{{ auth.nombreUsuario() }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+
+      <mat-menu #menuUsuario="matMenu" xPosition="before">
+        <div class="menu-cabecera">
+          <strong>{{ auth.usuario()?.nombre_completo }}</strong>
+          <span>{{ auth.usuario()?.nombre_usuario }}</span>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="salir()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar sesión</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="contenido">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,69 @@
+.resumen-linea {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 4px 2px;
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dato span {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ts-muted);
+  font-weight: 600;
+}
+
+.dato strong {
+  font-size: 1.15rem;
+}
+
+.campo-busqueda {
+  flex: 2 1 280px !important;
+}
+
+.producto-nombre {
+  font-weight: 500;
+}
+
+.producto-descripcion {
+  font-size: 0.76rem;
+  color: var(--ts-muted);
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-valor {
+  display: inline-block;
+  min-width: 34px;
+  padding: 2px 8px;
+  border-radius: 7px;
+  background: #f1f4fa;
+  font-weight: 600;
+}
+
+.stock-valor.bajo {
+  background: var(--ts-warning-soft);
+  color: var(--ts-warning);
+}
+
+.cargando {
+  padding: 40px;
+  text-align: center;
+  color: var(--ts-muted);
+}
+
+.empty-state strong {
+  color: var(--ts-ink);
+}
+
+.empty-state button {
+  margin-top: 8px;
+}
