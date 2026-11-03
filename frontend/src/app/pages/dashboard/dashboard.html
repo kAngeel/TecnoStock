@@ -1,0 +1,257 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumen de la operación del inventario en el período seleccionado.</p>
+    </div>
+  </header>
+
+  <form class="card filtros-fecha" (submit)="aplicar($event)" novalidate>
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [formField]="formulario.desde" />
+      @if (errorDe(formulario.desde()); as mensaje) {
+        <mat-error>{{ mensaje }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [formField]="formulario.hasta" />
+      @if (errorDe(formulario.hasta()); as mensaje) {
+        <mat-error>{{ mensaje }}</mat-error>
+      }
+    </mat-form-field>
+
+    <button mat-flat-button color="primary" type="submit">
+      <mat-icon>filter_alt</mat-icon>
+      Aplicar
+    </button>
+
+    <button mat-stroked-button type="button" (click)="mesActual()">
+      <mat-icon>calendar_month</mat-icon>
+      Mes actual
+    </button>
+
+    <span class="rango-info">
+      <mat-icon>date_range</mat-icon>
+      Del {{ modelo().desde | date: 'dd/MM/yyyy' }} al {{ modelo().hasta | date: 'dd/MM/yyyy' }}
+    </span>
+  </form>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  @if (cargando()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (resumen(); as r) {
+    <section class="kpi-grid" aria-label="Indicadores principales">
+      <article class="kpi">
+        <div class="kpi-icon success"><mat-icon>payments</mat-icon></div>
+        <div>
+          <div class="kpi-label">Valor del inventario</div>
+          <div class="kpi-value">
+            {{ r.valor_inventario | currency: 'PEN' : 'symbol' : '1.2-2' }}
+          </div>
+          <div class="kpi-hint">Stock valorizado a precio de compra</div>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <div class="kpi-icon"><mat-icon>inventory</mat-icon></div>
+        <div>
+          <div class="kpi-label">Unidades en stock</div>
+          <div class="kpi-value">{{ r.unidades_en_stock | number: '1.0-0' }}</div>
+          <div class="kpi-hint">{{ r.productos_total }} productos registrados</div>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <div class="kpi-icon"><mat-icon>check_circle</mat-icon></div>
+        <div>
+          <div class="kpi-label">Productos activos</div>
+          <div class="kpi-value">{{ r.productos_activos }}</div>
+          <div class="kpi-hint">
+            {{ r.productos_inactivos }} inactivos · {{ r.categorias_total }} categorías
+          </div>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <div class="kpi-icon warning"><mat-icon>notification_important</mat-icon></div>
+        <div>
+          <div class="kpi-label">Stock bajo</div>
+          <div class="kpi-value">{{ r.productos_stock_bajo }}</div>
+          <div class="kpi-hint">
+            <a routerLink="/stock-bajo">Ver productos por reponer</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="mini-grid">
+      <article class="mini">
+        <mat-icon>swap_vert</mat-icon>
+        <div>
+          <span>Movimientos del período</span>
+          <strong>{{ r.movimientos_periodo }}</strong>
+        </div>
+      </article>
+      <article class="mini entrada">
+        <mat-icon>south_west</mat-icon>
+        <div>
+          <span>Unidades ingresadas</span>
+          <strong>+{{ r.unidades_entrada }}</strong>
+        </div>
+      </article>
+      <article class="mini salida">
+        <mat-icon>north_east</mat-icon>
+        <div>
+          <span>Unidades retiradas</span>
+          <strong>−{{ r.unidades_salida }}</strong>
+        </div>
+      </article>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-title">Movimientos por día</div>
+        <div class="card-subtitle">Unidades ingresadas y retiradas en el período.</div>
+
+        <div class="leyenda">
+          <span class="punto entrada"></span> Entradas <span class="punto salida"></span> Salidas
+        </div>
+
+        @if (serie().length === 0) {
+          <div class="empty-state">
+            <mat-icon>bar_chart</mat-icon>
+            <span>No hay movimientos registrados en el período.</span>
+          </div>
+        } @else {
+          <div class="chart-box">
+            <div class="chart">
+              @for (dia of serie(); track dia.fecha) {
+                <div
+                  class="columna"
+                  [matTooltip]="dia.fecha + ' · ' + dia.movimientos + ' movimientos'"
+                >
+                  <div class="barras">
+                    <div class="barra entrada" [style.height.%]="dia.alturaEntrada"></div>
+                    <div class="barra salida" [style.height.%]="dia.alturaSalida"></div>
+                  </div>
+                  <span class="etiqueta">{{ dia.fecha | date: 'dd' }}</span>
+                </div>
+              }
+            </div>
+            <div class="escalas">
+              <span>{{ maximoEntrada() }} entradas máx.</span>
+              <span>{{ maximoSalida() }} salidas máx.</span>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="card">
+        <div class="card-title">Productos con más movimientos</div>
+        <div class="card-subtitle">Top 5 del período seleccionado.</div>
+
+        @if ((datos()?.top_productos ?? []).length === 0) {
+          <div class="empty-state">
+            <mat-icon>leaderboard</mat-icon>
+            <span>Sin actividad para mostrar.</span>
+          </div>
+        } @else {
+          <ul class="top-lista">
+            @for (producto of datos()?.top_productos; track producto.producto_id; let i = $index) {
+              <li>
+                <span class="posicion">{{ i + 1 }}</span>
+                <div class="top-info">
+                  <span class="top-nombre">{{ producto.nombre }}</span>
+                  <span class="codigo">{{ producto.codigo }}</span>
+                </div>
+                <div class="top-cifras">
+                  <span class="entrada">+{{ producto.unidades_entrada }}</span>
+                  <span class="salida">−{{ producto.unidades_salida }}</span>
+                  <small>{{ producto.movimientos }} mov.</small>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <div class="card-title">Últimos movimientos</div>
+          <div class="card-subtitle">Registros más recientes de entradas y salidas.</div>
+        </div>
+        <span class="spacer"></span>
+        <a mat-button routerLink="/historial">
+          <mat-icon>history</mat-icon>
+          Ver historial completo
+        </a>
+      </div>
+
+      @if ((datos()?.ultimos_movimientos ?? []).length === 0) {
+        <div class="empty-state">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Aún no se registraron movimientos.</span>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="ts-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th class="right">Cantidad</th>
+                <th class="right">Stock</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (movimiento of datos()?.ultimos_movimientos; track movimiento.movimiento_id) {
+                <tr>
+                  <td class="nowrap">{{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>
+                    <div class="producto-celda">
+                      <span class="codigo">{{ movimiento.producto_codigo }}</span>
+                      <span>{{ movimiento.producto_nombre }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="chip"
+                      [class.entrada]="movimiento.tipo === 'ENTRADA'"
+                      [class.salida]="movimiento.tipo === 'SALIDA'"
+                    >
+                      {{ movimiento.tipo }}
+                    </span>
+                  </td>
+                  <td class="right">{{ movimiento.cantidad }}</td>
+                  <td class="right nowrap">
+                    {{ movimiento.stock_anterior }} → {{ movimiento.stock_posterior }}
+                  </td>
+                  <td class="motivo">{{ movimiento.motivo }}</td>
+                  <td>{{ movimiento.nombre_usuario }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

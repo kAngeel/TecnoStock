@@ -1,0 +1,217 @@
+.login {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: #f6f8fc;
+}
+
+.panel-marca {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 48px;
+  color: #eaf1fb;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(59, 130, 246, 0.35), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgba(99, 102, 241, 0.35), transparent 45%),
+    linear-gradient(160deg, #0c172a 0%, #12294a 52%, #0d1b31 100%);
+  overflow: hidden;
+}
+
+.panel-marca::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 30% 30%, #000 10%, transparent 75%);
+  pointer-events: none;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  display: grid;
+  place-items: center;
+}
+
+.mensaje {
+  position: relative;
+  z-index: 1;
+  max-width: 460px;
+}
+
+.mensaje h1 {
+  color: #ffffff;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.mensaje p {
+  color: #a9bcd6;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 18px 0 26px;
+}
+
+.beneficios {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.beneficios li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d3e1f4;
+  font-size: 0.9rem;
+}
+
+.beneficios mat-icon {
+  color: #5ee29a;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.pie-marca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8ba3c2;
+  font-size: 0.78rem;
+  position: relative;
+  z-index: 1;
+}
+
+.pie-marca mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.panel-formulario {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  gap: 18px;
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border: 1px solid var(--ts-line);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px -30px rgba(15, 28, 51, 0.45);
+  padding: 34px 32px 26px;
+}
+
+.encabezado {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.icono-login {
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+}
+
+.encabezado h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.encabezado p {
+  color: var(--ts-muted);
+  font-size: 0.87rem;
+  margin: 6px 0 0;
+}
+
+mat-form-field {
+  margin-bottom: 6px;
+}
+
+.progreso {
+  margin: 4px 0 10px;
+}
+
+.boton-ingresar {
+  width: 100%;
+  height: 46px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 6px;
+  border-radius: 10px;
+}
+
+.boton-ingresar mat-icon {
+  margin-right: 6px;
+}
+
+.nota {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--ts-muted);
+}
+
+.pie {
+  font-size: 0.75rem;
+  color: #8792a6;
+}
+
+.error-banner {
+  margin-bottom: 14px;
+}
+
+@media (max-width: 900px) {
+  .login {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-marca {
+    display: none;
+  }
+
+  .panel-formulario {
+    min-height: 100dvh;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.16), transparent 55%), #f6f8fc;
+  }
+
+  .tarjeta {
+    padding: 26px 20px 22px;
+  }
+}

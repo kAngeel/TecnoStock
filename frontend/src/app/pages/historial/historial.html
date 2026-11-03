@@ -1,0 +1,160 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Historial de movimientos</h1>
+      <p>Todas las entradas y salidas registradas, con su usuario y variación de stock.</p>
+    </div>
+    <div class="acciones-cabecera">
+      <a mat-stroked-button routerLink="/entradas">
+        <mat-icon>south_west</mat-icon>
+        Nueva entrada
+      </a>
+      <a mat-stroked-button routerLink="/salidas">
+        <mat-icon>north_east</mat-icon>
+        Nueva salida
+      </a>
+    </div>
+  </header>
+
+  <form class="card filtros" (submit)="$event.preventDefault()">
+    <mat-form-field appearance="outline">
+      <mat-label>Desde</mat-label>
+      <input matInput type="date" [formField]="formulario.fechaDesde" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Hasta</mat-label>
+      <input matInput type="date" [formField]="formulario.fechaHasta" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Producto</mat-label>
+      <mat-select [formField]="formulario.productoId">
+        <mat-option [value]="null">Todos los productos</mat-option>
+        @for (producto of productos(); track producto.producto_id) {
+          <mat-option [value]="producto.producto_id">
+            {{ producto.codigo }} · {{ producto.nombre }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo</mat-label>
+      <mat-select [formField]="formulario.tipo">
+        <mat-option value="">Entradas y salidas</mat-option>
+        <mat-option value="ENTRADA">Solo entradas</mat-option>
+        <mat-option value="SALIDA">Solo salidas</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="botones-filtro">
+      <button mat-button type="button" (click)="mesActual()">
+        <mat-icon>calendar_month</mat-icon>
+        Mes actual
+      </button>
+      <button mat-button type="button" (click)="rangoRapido(7)">
+        <mat-icon>date_range</mat-icon>
+        Últimos 7 días
+      </button>
+      <button mat-stroked-button type="button" (click)="limpiar()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  <section class="card">
+    <div class="resumen">
+      <span class="contador"
+        ><strong>{{ total() }}</strong> movimientos encontrados</span
+      >
+      @if (cargando()) {
+        <span class="muted">Actualizando…</span>
+      }
+    </div>
+
+    @if (cargando() && movimientos().length === 0) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (movimientos().length === 0 && !cargando()) {
+      <div class="empty-state">
+        <mat-icon>receipt_long</mat-icon>
+        <strong>Sin movimientos para los filtros aplicados</strong>
+        <span>Prueba con otro rango de fechas o registra una entrada o salida.</span>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="ts-table">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th class="right">Cantidad</th>
+              <th class="right">Stock anterior</th>
+              <th class="right">Stock posterior</th>
+              <th>Motivo</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (movimiento of movimientos(); track movimiento.movimiento_id) {
+              <tr>
+                <td class="muted">#{{ movimiento.movimiento_id }}</td>
+                <td class="nowrap">{{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <div class="producto-celda">
+                    <span class="codigo">{{ movimiento.producto_codigo }}</span>
+                    <span>{{ movimiento.producto_nombre }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="chip"
+                    [class.entrada]="movimiento.tipo === 'ENTRADA'"
+                    [class.salida]="movimiento.tipo === 'SALIDA'"
+                  >
+                    {{ movimiento.tipo }}
+                  </span>
+                </td>
+                <td class="right cantidad">{{ movimiento.cantidad }}</td>
+                <td class="right muted">{{ movimiento.stock_anterior }}</td>
+                <td class="right">
+                  <strong>{{ movimiento.stock_posterior }}</strong>
+                </td>
+                <td class="motivo">{{ movimiento.motivo }}</td>
+                <td>
+                  <div class="usuario-celda">
+                    <span>{{ movimiento.nombre_usuario }}</span>
+                    <small>{{ movimiento.usuario_nombre_completo }}</small>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="total()"
+        [pageSize]="tamano()"
+        [pageIndex]="pagina() - 1"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="cambiarPagina($event)"
+        showFirstLastButtons
+      />
+    }
+  </section>
+</div>

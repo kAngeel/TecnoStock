@@ -1,0 +1,139 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Categorías</h1>
+      <p>Organiza el catálogo de productos por categorías.</p>
+    </div>
+  </header>
+
+  <section class="resumen-linea">
+    <div class="dato">
+      <span>Categorías</span>
+      <strong>{{ categorias().length }}</strong>
+    </div>
+    <div class="dato">
+      <span>Productos asociados</span>
+      <strong>{{ totalProductos() }}</strong>
+    </div>
+  </section>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  <div class="disposicion">
+    <section class="card tabla-card">
+      @if (cargando()) {
+        <div class="cargando">Cargando categorías…</div>
+      } @else if (categorias().length === 0) {
+        <div class="empty-state">
+          <mat-icon>category</mat-icon>
+          <strong>Aún no hay categorías</strong>
+          <span>Registra la primera categoría con el formulario de la derecha.</span>
+        </div>
+      } @else {
+        <div class="table-wrapper">
+          <table class="ts-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th class="right">Productos</th>
+                <th class="right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (categoria of categorias(); track categoria.categoria_id) {
+                <tr [class.en-edicion]="editando()?.categoria_id === categoria.categoria_id">
+                  <td>
+                    <div class="nombre-categoria">
+                      <mat-icon>label</mat-icon>
+                      <span>{{ categoria.nombre }}</span>
+                    </div>
+                  </td>
+                  <td class="descripcion">{{ categoria.descripcion || '—' }}</td>
+                  <td class="right">
+                    <span class="contador">{{ categoria.total_productos }}</span>
+                  </td>
+                  <td class="right">
+                    <button
+                      mat-icon-button
+                      matTooltip="Editar categoría"
+                      (click)="seleccionar(categoria)"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <aside class="card formulario-card">
+      <div class="card-title">
+        {{ editando() ? 'Editar categoría' : 'Nueva categoría' }}
+      </div>
+      <div class="card-subtitle">
+        {{
+          editando()
+            ? 'Actualiza el nombre o la descripción de la categoría seleccionada.'
+            : 'Las categorías agrupan productos y facilitan los filtros del catálogo.'
+        }}
+      </div>
+
+      @if (errorFormulario()) {
+        <div class="error-banner" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorFormulario() }}</span>
+        </div>
+      }
+
+      <form (submit)="guardar($event)" novalidate class="formulario">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput [formField]="formulario.nombre" placeholder="Ej. Accesorios" />
+          @if (errorDe(formulario.nombre()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Descripción (opcional)</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [formField]="formulario.descripcion"
+            placeholder="Detalle de los productos incluidos"
+          ></textarea>
+          @if (errorDe(formulario.descripcion()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+        </mat-form-field>
+
+        @if (guardando()) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+
+        <div class="acciones">
+          @if (editando()) {
+            <button mat-button type="button" (click)="limpiar()" [disabled]="guardando()">
+              Cancelar
+            </button>
+          }
+          <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+            <mat-icon>{{ editando() ? 'save' : 'add' }}</mat-icon>
+            {{ editando() ? 'Guardar cambios' : 'Registrar categoría' }}
+          </button>
+        </div>
+      </form>
+    </aside>
+  </div>
+</div>

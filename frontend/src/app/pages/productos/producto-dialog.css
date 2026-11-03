@@ -1,0 +1,72 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+h2[mat-dialog-title] mat-icon {
+  color: var(--ts-primary);
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px !important;
+  min-width: min(560px, 82vw);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.nota-stock {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ts-primary-soft);
+  color: #23406e;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.nota-stock mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--ts-primary);
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.error-banner {
+  margin-bottom: 14px;
+}
+
+mat-dialog-actions button mat-icon {
+  margin-right: 4px;
+}
+
+@media (max-width: 640px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .contenido {
+    min-width: auto;
+  }
+}

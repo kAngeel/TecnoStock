@@ -1,0 +1,103 @@
+<div class="login">
+  <section class="panel-marca">
+    <div class="marca">
+      <div class="logo"><mat-icon>inventory_2</mat-icon></div>
+      <span>TecnoStock S.A.C.</span>
+    </div>
+
+    <div class="mensaje">
+      <h1>Control total de tu inventario</h1>
+      <p>
+        Registra entradas y salidas, controla el stock mínimo y consulta los indicadores de tu
+        operación en tiempo real.
+      </p>
+
+      <ul class="beneficios">
+        <li><mat-icon>check_circle</mat-icon> Stock siempre consistente, sin valores negativos</li>
+        <li><mat-icon>check_circle</mat-icon> Historial completo de cada movimiento</li>
+        <li><mat-icon>check_circle</mat-icon> Alertas de productos por reponer</li>
+      </ul>
+    </div>
+
+    <div class="pie-marca">
+      <mat-icon>shield</mat-icon>
+      <span>Acceso protegido con JWT y contraseñas Argon2id</span>
+    </div>
+  </section>
+
+  <section class="panel-formulario">
+    <div class="tarjeta">
+      <div class="encabezado">
+        <div class="icono-login"><mat-icon>lock</mat-icon></div>
+        <h2>Iniciar sesión</h2>
+        <p>Ingresa tus credenciales para acceder al sistema.</p>
+      </div>
+
+      @if (error()) {
+        <div class="error-banner" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <form (submit)="ingresar($event)" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input
+            matInput
+            [formField]="formulario.nombreUsuario"
+            autocomplete="username"
+            placeholder="Ej. admin"
+          />
+          @if (errorDe(formulario.nombreUsuario()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <mat-icon matPrefix>key</mat-icon>
+          <input
+            matInput
+            [formField]="formulario.contrasena"
+            [type]="mostrarContrasena() ? 'text' : 'password'"
+            autocomplete="current-password"
+            placeholder="Tu contraseña"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="alternarContrasena()"
+            [attr.aria-label]="mostrarContrasena() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <mat-icon>{{ mostrarContrasena() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (errorDe(formulario.contrasena()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+        </mat-form-field>
+
+        @if (cargando()) {
+          <mat-progress-bar mode="indeterminate" class="progreso" />
+        }
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          class="boton-ingresar"
+          [disabled]="cargando()"
+        >
+          <mat-icon>login</mat-icon>
+          Ingresar
+        </button>
+      </form>
+
+      <p class="nota">¿No tienes acceso? Solicita credenciales al administrador del sistema.</p>
+    </div>
+
+    <footer class="pie">© {{ anio }} TecnoStock S.A.C. · Sistema de inventario</footer>
+  </section>
+</div>

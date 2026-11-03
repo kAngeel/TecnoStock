@@ -1,0 +1,157 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Productos con stock bajo</h1>
+      <p>Productos activos cuyo stock está en o por debajo del mínimo configurado.</p>
+    </div>
+    <button mat-stroked-button color="primary" (click)="cargar()">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </header>
+
+  <section class="kpi-grid resumen">
+    <article class="kpi">
+      <div class="kpi-icon warning"><mat-icon>notification_important</mat-icon></div>
+      <div>
+        <div class="kpi-label">Productos por reponer</div>
+        <div class="kpi-value">{{ productos().length }}</div>
+        <div class="kpi-hint">Solo se consideran productos activos</div>
+      </div>
+    </article>
+
+    <article class="kpi">
+      <div class="kpi-icon danger"><mat-icon>remove_shopping_cart</mat-icon></div>
+      <div>
+        <div class="kpi-label">Sin stock</div>
+        <div class="kpi-value">{{ sinStock() }}</div>
+        <div class="kpi-hint">Requieren reposición inmediata</div>
+      </div>
+    </article>
+
+    <article class="kpi">
+      <div class="kpi-icon"><mat-icon>add_shopping_cart</mat-icon></div>
+      <div>
+        <div class="kpi-label">Unidades faltantes</div>
+        <div class="kpi-value">{{ totalFaltante() }}</div>
+        <div class="kpi-hint">Para alcanzar el stock mínimo</div>
+      </div>
+    </article>
+
+    <article class="kpi">
+      <div class="kpi-icon success"><mat-icon>payments</mat-icon></div>
+      <div>
+        <div class="kpi-label">Costo de reposición</div>
+        <div class="kpi-value">
+          {{ valorReposicion() | currency: 'PEN' : 'symbol' : '1.2-2' }}
+        </div>
+        <div class="kpi-hint">Faltante valorizado a precio de compra</div>
+      </div>
+    </article>
+  </section>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  <section class="card">
+    @if (cargando()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (productos().length === 0 && !cargando()) {
+      <div class="empty-state">
+        <mat-icon>verified</mat-icon>
+        <strong>Todo el inventario está por encima del mínimo</strong>
+        <span>No hay productos activos que requieran reposición en este momento.</span>
+        <a mat-stroked-button color="primary" routerLink="/productos">
+          <mat-icon>inventory_2</mat-icon>
+          Ver catálogo
+        </a>
+      </div>
+    } @else if (productos().length > 0) {
+      <div class="table-wrapper">
+        <table class="ts-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th class="right">Stock</th>
+              <th class="right">Mínimo</th>
+              <th class="right">Faltante</th>
+              <th class="nivel-col">Nivel</th>
+              <th class="right">Costo reposición</th>
+              <th class="right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of productos(); track producto.producto_id) {
+              <tr>
+                <td>
+                  <span class="codigo">{{ producto.codigo }}</span>
+                </td>
+                <td>
+                  <div class="producto-nombre">{{ producto.nombre }}</div>
+                </td>
+                <td>{{ producto.categoria_nombre }}</td>
+                <td class="right">
+                  <span class="stock-tag" [class.cero]="producto.stock === 0">
+                    {{ producto.stock }}
+                  </span>
+                </td>
+                <td class="right muted">{{ producto.stock_minimo }}</td>
+                <td class="right faltante">{{ producto.faltante }}</td>
+                <td class="nivel-col">
+                  <div
+                    class="nivel"
+                    [matTooltip]="
+                      producto.stock + ' de ' + producto.stock_minimo + ' unidades mínimas'
+                    "
+                  >
+                    <div class="nivel-barra">
+                      <div
+                        class="nivel-relleno"
+                        [style.width.%]="porcentaje(producto)"
+                        [class.cero]="producto.stock === 0"
+                      ></div>
+                    </div>
+                    <small>{{ porcentaje(producto) }}%</small>
+                  </div>
+                </td>
+                <td class="right nowrap">
+                  {{
+                    producto.faltante * producto.precio_compra
+                      | currency: 'PEN' : 'symbol' : '1.2-2'
+                  }}
+                </td>
+                <td class="right nowrap">
+                  <a
+                    mat-flat-button
+                    color="primary"
+                    class="reponer"
+                    [routerLink]="['/entradas']"
+                    [queryParams]="{ producto: producto.producto_id }"
+                  >
+                    <mat-icon>add</mat-icon>
+                    Reponer
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <p class="nota">
+    <mat-icon>info</mat-icon>
+    Los productos inactivos no se incluyen en esta alerta, aunque conserven existencias.
+  </p>
+</div>

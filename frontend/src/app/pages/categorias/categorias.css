@@ -1,0 +1,105 @@
+.resumen-linea {
+  display: flex;
+  gap: 34px;
+  padding: 2px;
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dato span {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ts-muted);
+  font-weight: 600;
+}
+
+.dato strong {
+  font-size: 1.15rem;
+}
+
+.disposicion {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.nombre-categoria {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.nombre-categoria mat-icon {
+  color: var(--ts-primary);
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+.descripcion {
+  color: var(--ts-muted);
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contador {
+  display: inline-block;
+  min-width: 32px;
+  padding: 2px 9px;
+  border-radius: 7px;
+  background: #f1f4fa;
+  font-weight: 600;
+  text-align: center;
+}
+
+tr.en-edicion {
+  background: var(--ts-primary-soft);
+}
+
+.formulario-card {
+  position: sticky;
+  top: 84px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.acciones mat-icon {
+  margin-right: 4px;
+}
+
+.cargando {
+  padding: 40px;
+  text-align: center;
+  color: var(--ts-muted);
+}
+
+@media (max-width: 1000px) {
+  .disposicion {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario-card {
+    position: static;
+  }
+}
