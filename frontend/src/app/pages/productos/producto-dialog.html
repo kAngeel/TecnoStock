@@ -1,0 +1,109 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ esEdicion ? 'edit' : 'add_box' }}</mat-icon>
+  {{ esEdicion ? 'Editar producto' : 'Nuevo producto' }}
+</h2>
+
+<form (submit)="guardar($event)" novalidate>
+  <mat-dialog-content class="contenido">
+    @if (error()) {
+      <div class="error-banner" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <div class="grid-2">
+      <mat-form-field appearance="outline">
+        <mat-label>Código</mat-label>
+        <input matInput [formField]="formulario.codigo" placeholder="Ej. LAP-001" />
+        @if (errorDe(formulario.codigo()); as mensaje) {
+          <mat-error>{{ mensaje }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Categoría</mat-label>
+        <mat-select [formField]="formulario.categoriaId">
+          @for (categoria of categorias; track categoria.categoria_id) {
+            <mat-option [value]="categoria.categoria_id">{{ categoria.nombre }}</mat-option>
+          }
+        </mat-select>
+        @if (errorDe(formulario.categoriaId()); as mensaje) {
+          <mat-error>{{ mensaje }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre</mat-label>
+      <input
+        matInput
+        [formField]="formulario.nombre"
+        placeholder="Ej. Laptop Lenovo ThinkPad E14"
+      />
+      @if (errorDe(formulario.nombre()); as mensaje) {
+        <mat-error>{{ mensaje }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea
+        matInput
+        rows="2"
+        [formField]="formulario.descripcion"
+        placeholder="Características o detalle del producto"
+      ></textarea>
+      @if (errorDe(formulario.descripcion()); as mensaje) {
+        <mat-error>{{ mensaje }}</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="grid-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Precio de compra</mat-label>
+        <span matTextPrefix>S/&nbsp;</span>
+        <input matInput type="number" step="0.01" [formField]="formulario.precioCompra" />
+        @if (errorDe(formulario.precioCompra()); as mensaje) {
+          <mat-error>{{ mensaje }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio de venta</mat-label>
+        <span matTextPrefix>S/&nbsp;</span>
+        <input matInput type="number" step="0.01" [formField]="formulario.precioVenta" />
+        @if (errorDe(formulario.precioVenta()); as mensaje) {
+          <mat-error>{{ mensaje }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Stock mínimo</mat-label>
+        <input matInput type="number" step="1" [formField]="formulario.stockMinimo" />
+        @if (errorDe(formulario.stockMinimo()); as mensaje) {
+          <mat-error>{{ mensaje }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="nota-stock">
+      <mat-icon>info</mat-icon>
+      <span>
+        El stock inicial es 0. Las unidades se registran mediante entradas y salidas de inventario.
+      </span>
+    </div>
+
+    @if (guardando()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancelar()" [disabled]="guardando()">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="guardando()">
+      <mat-icon>{{ esEdicion ? 'save' : 'add' }}</mat-icon>
+      {{ esEdicion ? 'Guardar cambios' : 'Registrar producto' }}
+    </button>
+  </mat-dialog-actions>
+</form>

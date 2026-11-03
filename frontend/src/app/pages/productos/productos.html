@@ -1,0 +1,160 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Productos</h1>
+      <p>Administra el catálogo. El stock solo cambia mediante entradas y salidas.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="nuevo()">
+      <mat-icon>add</mat-icon>
+      Nuevo producto
+    </button>
+  </header>
+
+  <section class="resumen-linea">
+    <div class="dato">
+      <span>Productos listados</span>
+      <strong>{{ productos().length }}</strong>
+    </div>
+    <div class="dato">
+      <span>Activos</span>
+      <strong>{{ totalActivos() }}</strong>
+    </div>
+    <div class="dato">
+      <span>Valor del listado</span>
+      <strong>{{ valorTotal() | currency: 'PEN' : 'symbol' : '1.2-2' }}</strong>
+    </div>
+  </section>
+
+  <form class="card filtros" (submit)="$event.preventDefault()">
+    <mat-form-field appearance="outline" class="campo-busqueda">
+      <mat-label>Buscar por código o nombre</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [formField]="formulario.busqueda" placeholder="Ej. LAP-001" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría</mat-label>
+      <mat-select [formField]="formulario.categoriaId">
+        <mat-option [value]="null">Todas las categorías</mat-option>
+        @for (categoria of categorias(); track categoria.categoria_id) {
+          <mat-option [value]="categoria.categoria_id">{{ categoria.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-checkbox [formField]="formulario.soloActivos">Solo activos</mat-checkbox>
+
+    <button mat-stroked-button type="button" (click)="limpiarFiltros()">
+      <mat-icon>filter_alt_off</mat-icon>
+      Limpiar
+    </button>
+  </form>
+
+  @if (error()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="recargar()">Reintentar</button>
+    </div>
+  }
+
+  <section class="card">
+    @if (cargando()) {
+      <div class="cargando">Cargando productos…</div>
+    } @else if (productos().length === 0) {
+      <div class="empty-state">
+        <mat-icon>inventory_2</mat-icon>
+        <strong>No se encontraron productos</strong>
+        <span>Ajusta los filtros o registra el primer producto del catálogo.</span>
+        <button mat-stroked-button color="primary" (click)="nuevo()">
+          <mat-icon>add</mat-icon>
+          Registrar producto
+        </button>
+      </div>
+    } @else {
+      <div class="table-wrapper">
+        <table class="ts-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th class="right">P. compra</th>
+              <th class="right">P. venta</th>
+              <th class="right">Stock</th>
+              <th class="right">Mínimo</th>
+              <th>Estado</th>
+              <th class="right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (producto of visibles(); track producto.producto_id) {
+              <tr>
+                <td>
+                  <span class="codigo">{{ producto.codigo }}</span>
+                </td>
+                <td>
+                  <div class="producto-nombre">{{ producto.nombre }}</div>
+                  <div class="producto-descripcion">{{ producto.descripcion }}</div>
+                </td>
+                <td>{{ producto.categoria_nombre }}</td>
+                <td class="right">
+                  {{ producto.precio_compra | currency: 'PEN' : 'symbol' : '1.2-2' }}
+                </td>
+                <td class="right">
+                  {{ producto.precio_venta | currency: 'PEN' : 'symbol' : '1.2-2' }}
+                </td>
+                <td class="right">
+                  <span
+                    class="stock-valor"
+                    [class.bajo]="estadoStock(producto) === 'bajo'"
+                    [matTooltip]="
+                      estadoStock(producto) === 'bajo'
+                        ? 'Stock en o por debajo del mínimo'
+                        : 'Stock disponible'
+                    "
+                  >
+                    {{ producto.stock }}
+                  </span>
+                </td>
+                <td class="right">{{ producto.stock_minimo }}</td>
+                <td>
+                  <span
+                    class="chip"
+                    [class.activo]="producto.activo"
+                    [class.inactivo]="!producto.activo"
+                  >
+                    {{ producto.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="right nowrap">
+                  <button mat-icon-button matTooltip="Editar producto" (click)="editar(producto)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    [matTooltip]="producto.activo ? 'Desactivar' : 'Reactivar'"
+                    [color]="producto.activo ? 'warn' : 'primary'"
+                    (click)="cambiarEstado(producto)"
+                  >
+                    <mat-icon>{{ producto.activo ? 'block' : 'restore' }}</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="productos().length"
+        [pageSize]="tamano()"
+        [pageIndex]="pagina()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="cambiarPagina($event)"
+        showFirstLastButtons
+      />
+    }
+  </section>
+</div>

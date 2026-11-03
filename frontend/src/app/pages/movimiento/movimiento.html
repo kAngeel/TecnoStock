@@ -1,0 +1,239 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ titulo }}</h1>
+      <p>{{ subtitulo }}</p>
+    </div>
+    <a mat-stroked-button routerLink="/historial">
+      <mat-icon>history</mat-icon>
+      Ver historial
+    </a>
+  </header>
+
+  @if (errorProductos()) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorProductos() }}</span>
+      <span class="spacer"></span>
+      <button mat-button (click)="cargarProductos()">Reintentar</button>
+    </div>
+  }
+
+  <div class="disposicion">
+    <section class="card">
+      <div class="card-title">
+        <mat-icon [class.entrada]="esEntrada" [class.salida]="!esEntrada">
+          {{ esEntrada ? 'south_west' : 'north_east' }}
+        </mat-icon>
+        Datos del movimiento
+      </div>
+      <div class="card-subtitle">
+        Complete los datos para registrar
+        {{ esEntrada ? 'el ingreso de unidades' : 'el retiro de unidades' }}.
+      </div>
+
+      @if (error()) {
+        <div class="error-banner" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <form (submit)="registrar($event)" novalidate class="formulario">
+        <div class="buscador">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Buscar producto</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input
+              matInput
+              [value]="busqueda()"
+              (input)="busqueda.set($any($event.target).value)"
+              placeholder="Código o nombre"
+            />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Producto</mat-label>
+          <mat-select [formField]="formulario.productoId">
+            @for (producto of productosFiltrados(); track producto.producto_id) {
+              <mat-option [value]="producto.producto_id">
+                <span class="opcion-producto">
+                  <span class="codigo">{{ producto.codigo }}</span>
+                  <span class="opcion-nombre">{{ producto.nombre }}</span>
+                  <span class="opcion-stock">Stock: {{ producto.stock }}</span>
+                </span>
+              </mat-option>
+            } @empty {
+              <mat-option disabled>No hay productos que coincidan con la búsqueda.</mat-option>
+            }
+          </mat-select>
+          @if (errorDe(formulario.productoId()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="grid-cantidad">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ etiquetaCantidad }}</mat-label>
+            <input matInput type="number" step="1" [formField]="formulario.cantidad" />
+            @if (errorDe(formulario.cantidad()); as mensaje) {
+              <mat-error>{{ mensaje }}</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="stock-info">
+            @if (productoSeleccionado(); as producto) {
+              <div class="fila-stock">
+                <span>Stock actual</span>
+                <strong>{{ producto.stock }}</strong>
+              </div>
+              <div class="fila-stock">
+                <span>Stock proyectado</span>
+                <strong
+                  [class.negativo]="(stockProyectado() ?? 0) < 0"
+                  [class.positivo]="(stockProyectado() ?? 0) >= 0"
+                >
+                  {{ stockProyectado() ?? producto.stock }}
+                </strong>
+              </div>
+              <div class="fila-stock">
+                <span>Stock mínimo</span>
+                <strong>{{ producto.stock_minimo }}</strong>
+              </div>
+            } @else {
+              <span class="sin-producto">Seleccione un producto para ver su stock.</span>
+            }
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Motivo</mat-label>
+          <textarea
+            matInput
+            rows="2"
+            [formField]="formulario.motivo"
+            [placeholder]="esEntrada ? 'Ej. Compra a proveedor' : 'Ej. Venta al cliente'"
+          ></textarea>
+          @if (errorDe(formulario.motivo()); as mensaje) {
+            <mat-error>{{ mensaje }}</mat-error>
+          }
+          <button matSuffix mat-button type="button" class="sugerir" (click)="usarMotivo()">
+            Usar sugerencia
+          </button>
+        </mat-form-field>
+
+        @if (registrando()) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+
+        <div class="acciones">
+          <button
+            mat-flat-button
+            [color]="esEntrada ? 'primary' : 'warn'"
+            type="submit"
+            [disabled]="registrando() || productos().length === 0"
+          >
+            <mat-icon>{{ esEntrada ? 'add_circle' : 'remove_circle' }}</mat-icon>
+            {{ esEntrada ? 'Registrar entrada' : 'Registrar salida' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="lateral">
+      @if (resultado(); as resultado) {
+        <section class="card exito">
+          <div class="exito-cabecera">
+            <div class="icono-exito">
+              <mat-icon>check</mat-icon>
+            </div>
+            <div>
+              <div class="card-title">Movimiento registrado</div>
+              <div class="card-subtitle">La operación se guardó correctamente.</div>
+            </div>
+          </div>
+
+          <dl class="detalle">
+            <div>
+              <dt>N° de movimiento</dt>
+              <dd>#{{ resultado.movimiento_id }}</dd>
+            </div>
+            <div>
+              <dt>Tipo</dt>
+              <dd>
+                <span
+                  class="chip"
+                  [class.entrada]="resultado.tipo === 'ENTRADA'"
+                  [class.salida]="resultado.tipo === 'SALIDA'"
+                >
+                  {{ resultado.tipo }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Cantidad</dt>
+              <dd>{{ resultado.cantidad }}</dd>
+            </div>
+            <div>
+              <dt>Stock anterior</dt>
+              <dd>{{ resultado.stock_anterior }}</dd>
+            </div>
+            <div>
+              <dt>Stock posterior</dt>
+              <dd class="stock-final">{{ resultado.stock_posterior }}</dd>
+            </div>
+          </dl>
+
+          <div class="exito-acciones">
+            <button mat-stroked-button type="button" (click)="descartarResultado()">
+              <mat-icon>add</mat-icon>
+              Registrar otro
+            </button>
+            <a mat-button routerLink="/historial">Ver historial</a>
+          </div>
+        </section>
+      } @else {
+        <section class="card ayuda">
+          <div class="card-title">Buenas prácticas</div>
+          <ul>
+            @if (esEntrada) {
+              <li>Registra el ingreso cuando la mercadería llegue físicamente.</li>
+              <li>Indica el proveedor o documento en el motivo.</li>
+              <li>El stock se incrementa al confirmar el movimiento.</li>
+            } @else {
+              <li>Verifica el stock disponible antes de retirar unidades.</li>
+              <li>El sistema rechaza cualquier salida mayor al stock actual.</li>
+              <li>Documenta el destino o la venta en el motivo.</li>
+            }
+            <li>El historial conserva el stock anterior y posterior de cada operación.</li>
+          </ul>
+        </section>
+      }
+
+      @if (productoSeleccionado(); as producto) {
+        <section class="card ficha">
+          <div class="card-title">Producto seleccionado</div>
+          <div class="ficha-nombre">{{ producto.nombre }}</div>
+          <span class="codigo">{{ producto.codigo }}</span>
+          <dl class="ficha-datos">
+            <div>
+              <dt>Categoría</dt>
+              <dd>{{ producto.categoria_nombre }}</dd>
+            </div>
+            <div>
+              <dt>Precio de compra</dt>
+              <dd>{{ producto.precio_compra | currency: 'PEN' : 'symbol' : '1.2-2' }}</dd>
+            </div>
+            <div>
+              <dt>Valor en stock</dt>
+              <dd>
+                {{ producto.stock * producto.precio_compra | currency: 'PEN' : 'symbol' : '1.2-2' }}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      }
+    </aside>
+  </div>
+</div>

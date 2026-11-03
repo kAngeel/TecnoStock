@@ -1,0 +1,88 @@
+.acciones-cabecera {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.acciones-cabecera mat-icon {
+  margin-right: 4px;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.filtros mat-form-field {
+  flex: 1 1 170px;
+  min-width: 150px;
+}
+
+.botones-filtro {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.botones-filtro mat-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.resumen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.84rem;
+  color: var(--ts-muted);
+}
+
+.producto-celda {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cantidad {
+  font-weight: 600;
+}
+
+.motivo {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-celda {
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario-celda small {
+  color: var(--ts-muted);
+  font-size: 0.72rem;
+}
+
+a {
+  color: var(--ts-primary);
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .filtros mat-form-field {
+    flex: 1 1 100%;
+  }
+
+  .botones-filtro {
+    margin-left: 0;
+  }
+}
