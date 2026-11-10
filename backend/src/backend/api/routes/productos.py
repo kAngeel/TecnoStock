@@ -12,6 +12,7 @@ from backend.schemas.producto import (
     ProductoOut,
     ProductoUpdate,
     StockBajoOut,
+    ValorInventarioOut,
 )
 from backend.services.producto_service import ProductoService
 
@@ -47,12 +48,13 @@ def stock_bajo(
 
 @router.get(
     "/valor-inventario",
+    response_model=ValorInventarioOut,
     summary="Valor referencial del inventario",
 )
 def valor_inventario(
     _usuario: UsuarioActual,
     service: Annotated[ProductoService, Depends(producto_service)],
-) -> dict:
+) -> ValorInventarioOut:
     return service.valor_inventario()
 
 
