@@ -33,3 +33,26 @@ export function mensajeError(
 
   return porDefecto;
 }
+
+/**
+ * Mensaje para el formulario de login.
+ *
+ * Un 401 en el login significa credenciales incorrectas, no una sesión
+ * caducada ni un problema de conexión: no debe reutilizar el texto genérico
+ * de "sesión no válida" ni el de fallo de red (reservado a status 0).
+ */
+export function mensajeErrorLogin(error: unknown): string {
+  const porDefecto = 'Usuario o contraseña incorrectos.';
+
+  if (error instanceof HttpErrorResponse) {
+    // Usuario inactivo: el backend envía un detalle distinto y útil.
+    if (error.status === 403) {
+      return mensajeError(error, porDefecto);
+    }
+    if (error.status === 401) {
+      return porDefecto;
+    }
+  }
+
+  return mensajeError(error, porDefecto);
+}

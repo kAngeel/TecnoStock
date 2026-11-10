@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../core/auth.service';
-import { mensajeError } from '../../core/api';
+import { mensajeErrorLogin } from '../../core/api';
 import { errorDe } from '../../shared/form-utils';
 
 interface LoginModel {
@@ -71,7 +71,7 @@ export class LoginPage {
             const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
             await this.router.navigateByUrl(returnUrl);
           } catch (error: unknown) {
-            this.error.set(mensajeError(error, 'Usuario o contraseña incorrectos.'));
+            this.error.set(mensajeErrorLogin(error));
           }
         },
       });

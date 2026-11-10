@@ -75,3 +75,15 @@ class StockBajoOut(BaseModel):
     stock_minimo: int
     faltante: int
     precio_compra: float
+
+
+class ValorInventarioOut(BaseModel):
+    """Resumen valorizado del inventario.
+
+    Se declara explícitamente para que el dinero viaje como número JSON y no
+    como cadena decimal, igual que en el resto de esquemas de salida.
+    """
+
+    valor_inventario: float
+    unidades_en_stock: int
+    productos_con_stock: int

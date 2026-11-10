@@ -14,6 +14,14 @@ def test_health_reporta_base_de_datos(client: TestClient) -> None:
     assert body["database"] == "ok"
 
 
+def test_health_responde_tambien_sin_prefijo_api(client: TestClient) -> None:
+    """Alias /health para sondas de disponibilidad que no usan /api."""
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == client.get("/api/health").json()
+
+
 def test_login_correcto_entrega_token_y_usuario(
     client: TestClient, admin_credentials: tuple[str, str]
 ) -> None:

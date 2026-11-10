@@ -210,6 +210,9 @@ def test_desactivar_producto(
     valor = client.get("/api/productos/valor-inventario", headers=auth)
     assert valor.status_code == 200
     assert valor.json()["unidades_en_stock"] >= 2
+    # El dinero debe viajar como número JSON, no como cadena decimal.
+    assert isinstance(valor.json()["valor_inventario"], float)
+    assert isinstance(valor.json()["productos_con_stock"], int)
 
     reactivado = client.patch(
         f"/api/productos/{producto['producto_id']}/activar", headers=auth
