@@ -11,7 +11,7 @@ Angular 22 con Angular Material y Signal Forms.
 | Base de datos | SQL Server (probado en 2025 Express 17.0), T-SQL, sin ORM |
 | Backend | Python 3.12, FastAPI, pyodbc, Pydantic v2, JWT, Argon2id |
 | Frontend | Angular 22 (SPA, sin SSR), Angular Material 22, Signal Forms |
-| Pruebas | pytest (integración real contra SQL Server), Vitest + jsdom |
+| Pruebas | pytest (unitarias e integración real contra SQL Server), Vitest + jsdom |
 
 ## Estructura
 
@@ -24,14 +24,14 @@ TecnoStock/
 │   │   ├── repositories/  # acceso a datos exclusivamente vía SP
 │   │   ├── schemas/    # modelos Pydantic de entrada/salida
 │   │   └── services/   # reglas de negocio y orquestación
-│   └── tests/          # 37 pruebas de integración reales
+│   └── tests/          # 40 pruebas unitarias y de integración
 ├── database/           # scripts SQL numerados (01..07) y su README
 └── frontend/           # SPA Angular 22 (npm)
 ```
 
 ## Requisitos
 
-- SQL Server 2019 o superior con la base `TecnoStock` creada.
+- SQL Server 2019 o superior (la base `TecnoStock` se crea en el paso 1).
 - [ODBC Driver 18 for SQL Server](https://learn.microsoft.com/sql/connect/odbc/download-odbc-driver-for-sql-server).
 - Python 3.12 y [uv](https://docs.astral.sh/uv/).
 - Node.js 22+ y npm 10 (el proyecto fija `npm@10.9.2`).
@@ -60,23 +60,34 @@ sqlcmd -S ".\SQLEXPRESS" -E -C -f 65001 -b -i database\01_database.sql -W -s "|"
 
 Detalle completo en [`database/README.md`](database/README.md).
 
-### 2. Backend
+### 2. Backend (FastAPI)
 
 ```powershell
 cd backend
 Copy-Item .env.example .env
-# editar .env: JWT_SECRET y BOOTSTRAP_ADMIN_PASSWORD
+# editar .env: conexión a SQL Server, JWT_SECRET y BOOTSTRAP_ADMIN_PASSWORD
 uv sync
-uv run uvicorn backend.main:app --reload --port 8000
+uv run backend
 ```
 
-La documentación interactiva queda en <http://localhost:8000/docs>.
+`uv run backend` ejecuta `backend.main:run()` y utiliza la fábrica de event loop
+`backend.core.loop:event_loop_factory`. En Windows selecciona
+`SelectorEventLoop`, que evita que un `WinError 64` cierre el socket de escucha
+cuando un cliente aborta la conexión. Si se arranca uvicorn directamente, hay
+que indicar la misma fábrica:
+
+```powershell
+uv run uvicorn backend.main:app --reload --loop backend.core.loop:event_loop_factory --port 8000
+```
+
+La documentación interactiva queda en <http://localhost:8000/docs> y la
+alternativa ReDoc en <http://localhost:8000/redoc>.
 
 `BOOTSTRAP_ADMIN_*` crea el administrador inicial **solo si no existe**, porque
 las contraseñas se almacenan con Argon2id y el hash debe generarse en Python
 (no en SQL). Cambiar la contraseña por defecto antes de usar el sistema.
 
-### 3. Frontend
+### 3. Frontend (Angular)
 
 ```powershell
 cd frontend
@@ -88,15 +99,34 @@ SPA disponible en <http://localhost:4200>. La URL de la API se configura en
 `frontend/src/environments/environment.ts` (por defecto
 `http://localhost:8000/api`) y debe coincidir con `CORS_ORIGINS` del backend.
 
+Para generar la compilación de producción:
+
+```powershell
+npm run build
+# salida: frontend/dist/frontend/browser
+```
+
+### Direcciones locales
+
+| Servicio | URL |
+|---|---|
+| Frontend (SPA) | <http://localhost:4200> |
+| API FastAPI | <http://localhost:8000> |
+| Swagger UI | <http://localhost:8000/docs> |
+| ReDoc | <http://localhost:8000/redoc> |
+| Salud de la API | <http://localhost:8000/api/health> |
+
 ## Pruebas
 
 ```powershell
-# Backend: 37 pruebas contra la base TecnoStock real (sin mocks)
+# Backend: 40 pruebas aprobadas (unitarias e integración real)
 cd backend
+uv sync
 uv run pytest
 
-# Frontend: 31 pruebas unitarias (Vitest + jsdom)
+# Frontend: 37 pruebas unitarias aprobadas (Vitest + jsdom)
 cd frontend
+npm install
 npm test -- --watch=false
 
 # Compilación de producción
@@ -104,10 +134,12 @@ cd frontend
 npm run build
 ```
 
-Las pruebas del backend crean datos con prefijos `TST-` / `TSTCAT-`, se ejecutan
-contra los procedimientos almacenados y limpian todo al terminar. La prueba de
-concurrencia lanza 20 salidas simultáneas y verifica que nunca quede stock
-negativo.
+Las pruebas del backend incluyen pruebas unitarias, como la fábrica del event
+loop y su cableado en `run()`, y pruebas de integración reales contra la base
+`TecnoStock`. Estas últimas crean datos con prefijos `TST-` / `TSTCAT-`, se
+ejecutan contra los procedimientos almacenados y limpian todo al terminar. La
+prueba de concurrencia lanza 20 salidas simultáneas y verifica que nunca quede
+stock negativo.
 
 ## Reglas de negocio implementadas
 

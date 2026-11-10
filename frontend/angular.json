@@ -27,7 +27,6 @@
             ],
             "styles": ["src/styles.css"],
             "outputMode": "static",
-            "prerender": false,
             "ssr": false,
             "security": {
               "allowedHosts": []
@@ -47,7 +46,12 @@
                   "maximumError": "16kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": {
+                "scripts": true,
+                "styles": true,
+                "fonts": false
+              }
             },
             "development": {
               "optimization": false,

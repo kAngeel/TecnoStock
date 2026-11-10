@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -74,6 +76,18 @@ async def lifespan(_app: FastAPI):
         )
 
     logger.info("TecnoStock API iniciada (entorno=%s).", settings.environment)
+
+    # Diagnóstico explícito del event loop: el listener solo es estable con
+    # SelectorEventLoop en Windows (ver backend/core/loop.py).
+    loop = asyncio.get_running_loop()
+    logger.info("Event loop activo: %s", type(loop).__name__)
+    if sys.platform == "win32" and not isinstance(loop, asyncio.SelectorEventLoop):
+        logger.warning(
+            "Se esperaba SelectorEventLoop en Windows; %s puede cerrar el "
+            "socket de escucha ante un WinError 64.",
+            type(loop).__name__,
+        )
+
     try:
         yield
     finally:
@@ -169,7 +183,17 @@ def create_app() -> FastAPI:
             "api": settings.api_prefix,
         }
 
-    @app.get("/api/health", tags=["Sistema"], summary="Estado del servicio")
+    @app.get(
+        "/api/health",
+        tags=["Sistema"],
+        summary="Estado del servicio",
+    )
+    @app.get(
+        "/health",
+        tags=["Sistema"],
+        summary="Alias de estado del servicio",
+        include_in_schema=False,
+    )
     def health() -> dict:
         try:
             ok = get_pool().healthcheck()
@@ -198,6 +222,9 @@ def run() -> None:
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
+        # Windows: evita que ProactorEventLoop cierre el listener ante
+        # WinError 64 (cliente que aborta durante el accept).
+        loop="backend.core.loop:event_loop_factory",
     )
 
 

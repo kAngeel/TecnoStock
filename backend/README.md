@@ -51,11 +51,23 @@ El archivo `.env` está ignorado por Git. Nunca se versionan secretos.
 
 ```powershell
 uv sync
-uv run uvicorn backend.main:app --reload --port 8000
+uv run backend
 ```
 
+- El entry point `backend` ejecuta `backend.main:run()` y fija el event loop
+  `SelectorEventLoop` en Windows (`backend.core.loop:event_loop_factory`).
+  Es el modo recomendado: evita que un `WinError 64` cierre el socket de
+  escucha cuando un cliente aborta la conexión.
+- Si se arranca uvicorn directamente, hay que pasar la misma fábrica:
+
+  ```powershell
+  uv run uvicorn backend.main:app --reload --loop backend.core.loop:event_loop_factory --port 8000
+  ```
+
 - Documentación: <http://localhost:8000/docs>
-- Salud: `GET /api/health` (verifica conexión a la base)
+- Salud: `GET /api/health` (verifica conexión a la base). También existe el
+  alias `GET /health`, sin autenticación y con el mismo cuerpo, para sondas
+  de disponibilidad.
 - Login: `POST /api/auth/login` → `access_token` + usuario
 - `GET /api/auth/me` → usuario autenticado
 
@@ -102,9 +114,17 @@ el límite del endpoint (Starlette vuelve a lanzar excepciones no controladas).
 uv run pytest
 ```
 
-37 pruebas de integración reales contra la base `TecnoStock`:
+40 pruebas aprobadas: unitarias y de integración real contra la base `TecnoStock`.
+
+Pruebas unitarias (no requieren base de datos):
+
+- Event loop: la fábrica devuelve `SelectorEventLoop` en Windows y `run()` la
+  pasa correctamente a uvicorn.
+
+Pruebas de integración reales contra `TecnoStock`:
 
 - Autenticación, token inválido, usuario inactivo y validaciones.
+- Salud: `/api/health` y su alias `/health`.
 - Categorías: alta, duplicados, actualización y 404.
 - Productos: stock inicial 0, stock ignorado en alta/edición, filtros,
   activación/desactivación, stock bajo y valor de inventario.

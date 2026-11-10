@@ -9,6 +9,7 @@ from backend.schemas.producto import (
     ProductoOut,
     ProductoUpdate,
     StockBajoOut,
+    ValorInventarioOut,
 )
 
 
@@ -82,11 +83,15 @@ class ProductoService:
             for row in self._productos.stock_bajo()
         ]
 
-    def valor_inventario(self) -> dict:
+    def valor_inventario(self) -> ValorInventarioOut:
         row = self._productos.valor_inventario()
         if row is None:
             raise AppError(500, "error_interno", "No se pudo calcular el inventario.")
-        return row
+        return ValorInventarioOut(
+            valor_inventario=float(row["valor_inventario"]),
+            unidades_en_stock=int(row["unidades_en_stock"]),
+            productos_con_stock=int(row["productos_con_stock"]),
+        )
 
     @staticmethod
     def _to_schema(row: dict) -> ProductoOut:
